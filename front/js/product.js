@@ -100,7 +100,7 @@ function checkQuantity(){
 
     // Controlleur de quantité
     if(parseInt(this.value) <= parseInt(Max_Quantity)){
-        alert('Horray! Someone wrote "' + this.value + '"!'); 
+        console.log("Quantité comprise entre 1 et 100")
     }
     else{
         alert(this.value + " est supérieur à la quantité max :" + Max_Quantity)
@@ -108,6 +108,7 @@ function checkQuantity(){
 }
 
 function addToCart(){
+    
     console.log("test")
     // Récupération de l'url
     var url = window.location.href
