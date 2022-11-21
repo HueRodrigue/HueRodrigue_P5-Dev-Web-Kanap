@@ -132,7 +132,7 @@ function addToCart(){
         // Préparation du stackage des produits commandés
         var storageId = product_id +"//" + color_value
 
-        // On véridifie si le produit est déja dans le localStorage
+        // On vérifie si le produit est déja dans le localStorage
         if (localStorage.getItem(storageId) !== null) {
             var monobjet_json = localStorage.getItem(storageId);
             var monobjet = JSON.parse(monobjet_json);

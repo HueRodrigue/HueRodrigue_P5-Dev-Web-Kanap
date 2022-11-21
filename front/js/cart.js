@@ -154,16 +154,77 @@ fetch("http://localhost:3000/api/products")
     var total_product_price = document.createTextNode(Total_price);
     var totalproduct_price = document.getElementById("totalPrice")
     totalproduct_price.appendChild(total_product_price)
-    var inputElem = document.getElementsByTagName('input');
+
+    // Mise à l'écoute de inputs de quantités
+    var inputElem = document.getElementsByClassName('itemQuantity');
     for(var i = 0; i < inputElem.length; i++) {
-    
+        // SI il y a un changement 
         inputElem[i].addEventListener('change', function(){
-        var test = getParentNode(this,4)
-        //Recupération de l'id pour mettre a jour local storange si changement de quanttité
-        console.log(test.dataset.id)
-        console.log(test)
+        // Récupération de la Node parent ou est stocké l'id et la couleur
+        var getNode = getParentNode(this,4)
+        console.log(this.value)
+        //Recupération de l'id pour mettre a jour local storage si changement de quantité
+        console.log(getNode.dataset.id)
+        console.log(getNode.dataset.color)
+        // C réation de l'id pour modifié le local storage concerné
+        var storageId = getNode.dataset.id + "//" + getNode.dataset.color
+        var monobjet_json = localStorage.getItem(storageId)
+        //console.log(test)
+        var monobjet = JSON.parse(monobjet_json);
+        console.log(monobjet)
+        // Modification de la quantité
+       var new_quantity = this.value
+            var canape  = {
+                id : getNode.dataset.id,
+                quantity : new_quantity,
+                colors : getNode.dataset.color
+            };
+        var canape_json = JSON.stringify(canape);
+        localStorage.setItem(storageId,canape_json);
+
+        updateTotalPrice();
+
+        
     }, false);
 }
+
+    // Mise à l'écoute des bouttons supprimé
+    var deleteElem = document.getElementsByClassName('deleteItem');
+    for(var i = 0; i < deleteElem.length; i++) {
+        // SI il y a un element cliqué
+        deleteElem[i].addEventListener('click', function(){
+        // Récupération de la Node parent ou est stocké l'id et la couleur
+        var getNode = getParentNode(this,4)
+        console.log(getNode)
+        var storageId = getNode.dataset.id + "//" + getNode.dataset.color
+
+        let text = "Voulez-vous vraiment supprimmer ce produit";
+        if (confirm(text) == true) {
+            alert("Produit supprimé")
+            deleteProduct(storageId)
+            const el1 = document.querySelector('[data-id="'+ getNode.dataset.id+'"]');
+            while (el1.firstChild) {
+                el1.removeChild(el1.firstChild);
+            }
+            updateTotalPrice()
+        } else {
+            alert("Aucun produit supprimé");
+        }
+
+    }, false);
+}
+
+
+var inputsElement = document.querySelectorAll('.cart__order__form__question input');
+console.log(inputsElement)
+ for(i=0; i<inputsElement.length; i++){
+        inputsElement[i].addEventListener('change', function(){
+        formValidity(this.id, this.value)
+
+    }, false);
+ }
+
+
 
 })
 .catch(function(err) {
@@ -179,3 +240,160 @@ function getParentNode(element, level = 1) { // 1 - default value (if no 'level'
     }
     return element;
 }
+
+function updateTotalPrice(){
+    fetch("http://localhost:3000/api/products")
+    .then(function(res) {
+        if (res.ok) {
+            return res.json();
+        }
+    })
+    .then(function(value) {
+        console.log("getting data from local storage");
+    var product_Array = []
+
+    var Total_price = 0;
+
+    console.log(localStorage.length)
+
+    for (var i = 0, len = localStorage.length; i < len; i++) {
+        var newArr = JSON.parse(window.localStorage.getItem(localStorage.key(i)));
+        console.log(newArr)
+        product_Array.push(newArr)
+
+    }
+    for (var i = 0; i < product_Array.length; i++) {
+        // Recherche du produit ayant l'id demandé
+        for (let key in value) {
+
+            // Si l'id est égal à l'id demandé
+            if (value[key]._id === product_Array[i].id) {
+                console.log(value[key]);
+                console.log(product_Array[i].quantity)
+                Total_price = Total_price + (product_Array[i].quantity*value[key].price)
+            }
+        }
+    }
+
+    console.log(Total_price)
+     //Modification du prix total
+     var totalproduct_price = document.getElementById("totalPrice")
+     totalproduct_price.innerHTML = Total_price
+
+     var totalproduct = document.getElementById("totalQuantity")
+    totalproduct.innerHTML = localStorage.length
+
+    })
+    .catch(function(err) {
+    // Une erreur est survenue
+    });
+}
+
+function deleteProduct(product_id){
+    localStorage.removeItem(product_id);
+    console.log("produit avec l'id " + product_id + " supprimé")
+}
+
+function formValidity(id,content){
+    switch(id){
+        case "lastName":
+            if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,20}$/.test(content)) {
+                return true;
+              } else {
+                let lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+                lastNameErrorMsg.innerText = "Merci de vérifier le nom, 3 caractères minimum, avec des lettres uniquement";
+              }
+        break;
+        case "firstName":
+            if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,20}$/.test(content)) {
+                return true;
+              } else {
+                let firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
+                firstNameErrorMsg.innerText = "Merci de vérifier le prénom, 3 caractères minimum";
+              }
+            break;
+        case "email":
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(content)) {
+                return true;
+              } else {
+                let emailErrorMsg = document.getElementById('emailErrorMsg');
+                emailErrorMsg.innerText = "Erreur ! Email non valide";
+              }   
+            break;
+        
+            case "city" :
+                if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,10}$/.test(content)) {
+                    return true;
+                  } else {
+                    let cityErrorMsg = document.getElementById('cityErrorMsg');
+                    cityErrorMsg.innerText = "Merci de vérifier le nom de la ville, 3 caractères minimum, avec des lettres uniquement";
+                  }
+                break;
+            
+            
+    }
+}
+
+function postForm() {
+    const order = document.getElementById('order');
+  order.addEventListener('click', (event) => {
+  event.preventDefault();
+    const contact = {
+        firstName : document.getElementById('firstName').value,
+        lastName : document.getElementById('lastName').value,
+        address : document.getElementById('address').value,
+        city : document.getElementById('city').value,
+        email : document.getElementById('email').value
+    }
+
+    console.log("getting data from local storage");
+    var product_Array = []
+
+
+    console.log(localStorage.length)
+
+    for (var i = 0, len = localStorage.length; i < len; i++) {
+        var newArr = JSON.parse(window.localStorage.getItem(localStorage.key(i)));
+        console.log(newArr)
+        product_Array.push(newArr)
+
+    }
+
+    var products = []
+    for (i=0; i<product_Array.length; i++){
+        products.push(product_Array[i].id)
+    }
+    console.log(products)
+    alert(products)
+    
+    const sendFormData = {
+        contact,
+        products,
+      }
+
+      alert(sendFormData)
+    
+      // j'envoie le formulaire + localStorage (sendFormData) 
+      // ... que j'envoie au serveur
+    
+      const options = {
+        method: 'POST',
+        body: JSON.stringify(sendFormData),
+        headers: { 
+          'Content-Type': 'application/json',
+        }
+      };
+    
+      fetch("http://localhost:3000/api/products/order", options)
+        .then(response => response.json())
+        .then(data => {
+          localStorage.setItem('orderId', data.orderId);
+            
+              document.location.href = 'confirmation.html?id='+ data.orderId;
+            
+        });
+    });
+} 
+postForm()
+
+
