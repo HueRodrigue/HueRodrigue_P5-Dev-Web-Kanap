@@ -1,14 +1,7 @@
 /*
 *Récupération des produits, puis création des éléments HTML permettant de les afficher
-*@param { Object[] } value
-*@param { String[] } value[].colors
-*@param { String } value[]._id
-*@param { String } value[].name
-*@param { Number } value[].price
-*@param { String } value[].imgUrl
-*@param { String } value[].description
-*@param { String } value[].altTxt
 */
+
 fetch("http://localhost:3000/api/products")
 .then(function(res) {
     if (res.ok) {
@@ -17,66 +10,62 @@ fetch("http://localhost:3000/api/products")
 })
 .then(function(value) {
     // Recherche de l'élément dans lequel seront placés les produits
-    var target_Elmt = document.getElementById('items');
-
-    // Grandeur du tableau de produit
-    var product_count = value.length;
-
+    var target_Element = document.getElementById('items');
+    var product_count = value.length
     // Pour chaque produit
-    for (i = 0; i < product_count-1; i++){
-
-        // Création de la balise <a>
-        var Element_clickable = document.createElement("a");
-
-        // Création de son attribut "href"
-        var href_product = "./product.html?id=" + value[i]._id;
-
-        // Assignation de l'attribut "href" à la balise <a>
-        Element_clickable.setAttribute('href', href_product);
-
-        // Création de la balise <article>
-        var Element_article = document.createElement("article");
+    for (i = 0; i <product_count-1; i++){
 
         // Création de la balise <img>
-        var Element_image = document.createElement("img");
+        var image_Element = document.createElement("img");
 
         // Assignation d'une source à la balise <img>
-        Element_image.src = value[i].imageUrl;
+        image_Element.src = value[i].imageUrl;
 
         // Assignatiion du alt à la balise <img>
-        Element_image.alt = value[i].altTxt;
+        image_Element.alt = value[i].altTxt;
 
         // Création d'une balise <h3> pour le nom du canapé
-        var Element_name = document.createElement("h3");
+        var name_Element = document.createElement("h3");
+        
 
         // Assignation d'une classe à la balise <h3>
-        Element_name.classList.add("productName");
+        name_Element.classList.add("productName");
         
         // Assignation du nom du canapé dans la balise <h3>
-        var name = document.createTextNode(value[i].name)
-        Element_name.appendChild(name)
+        var name = document.createTextNode(value[i].name);
+        name_Element.appendChild(name);
         
+
         // Création d'une balise <p> pour la description du canapé
-        var Element_description = document.createElement("p");
+        var description_Element = document.createElement("p");
 
         // Assignation d'une classe à la balise <p>
-        Element_description.classList.add("productDescription");
-
+        description_Element.classList.add("productDescription");
+ 
         // Assignation de la description dans la balise <p>
-        var description = document.createTextNode(value[i].description)
-        Element_description.appendChild(description)
-        
+        var description = document.createTextNode(value[i].description);
+        description_Element.appendChild(description);
+
+        // Création de la balise <article>
+        var article_Element = document.createElement("article");
+
+        // Création de la balise <a>
+        var clickable_Element = document.createElement("a");
+
+        var href_Product = "./product.html?id=" + value[i]._id;
+        // Assignation de l'attribut "href" à la balise <a>
+        clickable_Element.setAttribute('href', href_Product);
+
         // La balise <article> resoit en éléments enfants l'image, le nom et la description du canapé
-        Element_article.appendChild(Element_image);
-        Element_article.appendChild(Element_name);
-        Element_article.appendChild(Element_description);
+        article_Element.appendChild(image_Element);
+        article_Element.appendChild(name_Element);
+        article_Element.appendChild(description_Element);
 
         // La balise <a> reçoit la balise <article> et ces éléments enfants
-        Element_clickable.appendChild(Element_article);
+        clickable_Element.appendChild(article_Element);
 
         // Placement du produit dans le HTML
-        target_Elmt.appendChild(Element_clickable);
-        
+        target_Element.appendChild(clickable_Element);
     }
 })
 .catch(function(err) {

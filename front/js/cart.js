@@ -1,14 +1,16 @@
 /*
 *Récupération des produits, puis création des éléments HTML permettant de les afficher
-*@param { Object[] } value
-*@param { String[] } value[].colors
-*@param { String } value[]._id
-*@param { String } value[].name
-*@param { Number } value[].price
-*@param { String } value[].imgUrl
-*@param { String } value[].description
-*@param { String } value[].altTxt
 */
+// Récupération des items du local storage
+console.log("Récupération du LocalStorage")
+var product_Array = []
+
+for (var i = 0, len = localStorage.length; i < len; i++) {
+    var newArr = JSON.parse(window.localStorage.getItem(localStorage.key(i)));
+    console.log(newArr)
+    product_Array.push(newArr)
+}
+
 fetch("http://localhost:3000/api/products")
 .then(function(res) {
     if (res.ok) {
@@ -18,137 +20,123 @@ fetch("http://localhost:3000/api/products")
 .then(function(value) {
     // Recherche de l'élément dans lequel seront placés les produits
     var target_Elmt = document.getElementById('cart__items');
-
-    console.log("getting data from local storage");
-    var product_Array = []
-
+    console.log(value)
     var Total_price = 0;
+    var Total_count = 0;
+    product_Array.forEach(element => {
 
-    console.log(localStorage.length)
+        var fetch_Product = value.find(obj => {
+            // Retorne l'object ayant la propriété demandé
+              return obj._id === element.id
+        })
+        // Création de la balise <img>
+        var Element_image = document.createElement("img");
 
-    for (var i = 0, len = localStorage.length; i < len; i++) {
-        var newArr = JSON.parse(window.localStorage.getItem(localStorage.key(i)));
-        console.log(newArr)
-        product_Array.push(newArr)
+        // Assignation d'une source à la balise <img>
+        Element_image.src = fetch_Product.imageUrl;
+        
 
-    }
-    for (var i = 0; i < product_Array.length; i++) {
-        // Recherche du produit ayant l'id demandé
-        for (let key in value) {
+        // Assignatiion du alt à la balise <img>
+        Element_image.alt = fetch_Product.altTxt;
 
-            // Si l'id est égal à l'id demandé
-            if (value[key]._id === product_Array[i].id) {
-                console.log(value[key]);
-                console.log(product_Array[i].colors)
-                // Création de la balise <img>
-                var Element_image = document.createElement("img");
+        // Div contenant l'image
+        var Image_container = document.createElement("div");
+        Image_container.classList.add("cart__item__img");
+        Image_container.appendChild(Element_image)
 
-                // Assignation d'une source à la balise <img>
-                Element_image.src = value[key].imageUrl;
+        //Création de la description du produit
+        // Assignation du nom du canapé dans la balise <h2>
+        var name = document.createTextNode(fetch_Product.name)
+        // Création d'une balise <h2> pour le nom du canapé
+        var Element_name = document.createElement("h2");
+        Element_name.appendChild(name)
 
-                // Assignatiion du alt à la balise <img>
-                Element_image.alt = value[key].altTxt;
+        // Assignation de la couleur du canapé dans la balise <p>
+        var color = document.createTextNode(element.colors)
+        // Création d'une balise <P> pour le nom du canapé
+        var Element_color = document.createElement("p");
+        Element_color.appendChild(color)
 
-                // Div contenant l'image
-                var Image_container = document.createElement("div");
-                Image_container.classList.add("cart__item__img");
-                Image_container.appendChild(Element_image)
+        // Assignation du prix du canapé dans la balise <p>
+        var price = document.createTextNode(fetch_Product.price + "€")
+        // Création d'une balise <p> pour le nom du canapé
+        var Element_price = document.createElement("p");
+        Element_price.appendChild(price)
 
-                //Création de la description du produit
-                // Assignation du nom du canapé dans la balise <h2>
-                var name = document.createTextNode(value[key].name)
-                // Création d'une balise <h2> pour le nom du canapé
-                var Element_name = document.createElement("h2");
-                Element_name.appendChild(name)
+        // Div contenant la description
+        var Description_container = document.createElement("div");
+        Description_container.classList.add("cart__item__content__description");
 
-                // Assignation de la couleur du canapé dans la balise <p>
-                var color = document.createTextNode(product_Array[i].colors)
-                // Création d'une balise <P> pour le nom du canapé
-                var Element_color = document.createElement("p");
-                Element_color.appendChild(color)
+        // Remplissage de la description
+        Description_container.appendChild(Element_name);
+        Description_container.appendChild(Element_color);
+        Description_container.appendChild(Element_price);
 
-                // Assignation du prix du canapé dans la balise <p>
-                var price = document.createTextNode(value[key].price + "€")
-                // Création d'une balise <p> pour le nom du canapé
-                var Element_price = document.createElement("p");
-                Element_price.appendChild(price)
+        //Création des paramètres de quantité
+        var quantity_text = document.createTextNode("Qté : ")
+        // Création d'une balise <p> pour le texte quantité
+        var Element_quantity_text = document.createElement("p");
+        Element_quantity_text.appendChild(quantity_text);
+        // Input quantité
+        var quantity_input = document.createElement("input")
+        quantity_input.setAttribute("type","number");
+        quantity_input.setAttribute("class","itemQuantity");
+        quantity_input.setAttribute("name","itemQuantity");
+        quantity_input.setAttribute("min","1");
+        quantity_input.setAttribute("max","100");
+        quantity_input.value = element.quantity;
 
-                // Div contenant la description
-                var Description_container = document.createElement("div");
-                Description_container.classList.add("cart__item__content__description");
+        // Création du conteneur de parametre de quantité
+        var quantity_setting_container = document.createElement("div");
+        quantity_setting_container.classList.add("cart__item__content__settings__quantity");
+        quantity_setting_container.appendChild(Element_quantity_text);
+        quantity_setting_container.appendChild(quantity_input);
 
-                // Remplissage de la description
-                Description_container.appendChild(Element_name);
-                Description_container.appendChild(Element_color);
-                Description_container.appendChild(Element_price);
+        //Création des paramètres de suppression d'un produit
+        var delete_text = document.createTextNode("Supprimer")
+        // Création d'une balise <p> pour le texte supprimer
+        var Element_delete_text = document.createElement("p");
+        Element_delete_text.classList.add("deleteItem");
+        Element_delete_text.appendChild(delete_text);
 
-                //Création des paramètres de quantité
-                var quantity_text = document.createTextNode("Qté : ")
-                // Création d'une balise <p> pour le texte quantité
-                var Element_quantity_text = document.createElement("p");
-                Element_quantity_text.appendChild(quantity_text);
-                // Input quantité
-                var quantity_input = document.createElement("input")
-                quantity_input.setAttribute("type","number");
-                quantity_input.setAttribute("class","itemQuantity");
-                quantity_input.setAttribute("name","itemQuantity");
-                quantity_input.setAttribute("min","1");
-                quantity_input.setAttribute("max","100");
-                quantity_input.value = product_Array[i].quantity;
+        // Création du conteneur de parametre de suppression
+        var delete_setting_container = document.createElement("div");
+        delete_setting_container.classList.add("cart__item__content__settings__delete");
+        delete_setting_container.appendChild(Element_delete_text);
 
-                // Création du conteneur de parametre de quantité
-                var quantity_setting_container = document.createElement("div");
-                quantity_setting_container.classList.add("cart__item__content__settings__quantity");
-                quantity_setting_container.appendChild(Element_quantity_text);
-                quantity_setting_container.appendChild(quantity_input);
+        // Création du conteneur de paramètre
+        var setting_container = document.createElement("div");
+        setting_container.classList.add("cart__item__content__settings");
+        setting_container.appendChild(quantity_setting_container);
+        setting_container.appendChild(delete_setting_container);
 
-                //Création des paramètres de suppression d'un produit
-                var delete_text = document.createTextNode("Supprimer")
-                // Création d'une balise <p> pour le texte supprimer
-                var Element_delete_text = document.createElement("p");
-                Element_delete_text.classList.add("deleteItem");
-                Element_delete_text.appendChild(delete_text);
+        // Creation du conteneur du descriptif et des paramètre
+        var card_content_container = document.createElement("div");
+        card_content_container.classList.add("cart__item__content");
+        card_content_container.appendChild(Description_container);
+        card_content_container.appendChild(setting_container);
 
-                // Création du conteneur de parametre de suppression
-                var delete_setting_container = document.createElement("div");
-                delete_setting_container.classList.add("cart__item__content__settings__delete");
-                delete_setting_container.appendChild(Element_delete_text);
+        // Création de la balise <article> contenu le produit
+        var article_item = document.createElement("article");
+        article_item.classList.add("cart__item");
+        article_item.setAttribute("data-id", element.id)
+        article_item.setAttribute("data-color",element.colors)
+        article_item.appendChild(Image_container);
+        article_item.appendChild(card_content_container);
 
-                // Création du conteneur de paramètre
-                var setting_container = document.createElement("div");
-                setting_container.classList.add("cart__item__content__settings");
-                setting_container.appendChild(quantity_setting_container);
-                setting_container.appendChild(delete_setting_container);
+        // Affichage dans le HTML
+        target_Elmt.appendChild(article_item);
 
-                // Creation du conteneur du descriptif et des paramètre
-                var card_content_container = document.createElement("div");
-                card_content_container.classList.add("cart__item__content");
-                card_content_container.appendChild(Description_container);
-                card_content_container.appendChild(setting_container);
-
-                // Création de la balise <article> contenu le produit
-                var article_item = document.createElement("article");
-                article_item.classList.add("cart__item");
-                article_item.setAttribute("data-id", product_Array[i].id)
-                article_item.setAttribute("data-color",product_Array[i].colors)
-                article_item.appendChild(Image_container);
-                article_item.appendChild(card_content_container);
-
-                // Affichage dans le HTML
-                target_Elmt.appendChild(article_item);
-
-                // Prix total des canapés
-                Total_price = Total_price + (value[key].price*product_Array[i].quantity)
-                
-
-            }
-        }
-    }
-
+        // Prix total des canapés
+        Total_price = Total_price + (fetch_Product.price*element.quantity)
+        Total_count = parseInt(Total_count) + parseInt(element.quantity);
+        
+        
+    });
+    var Total_product_count = document.createTextNode(Total_count)
     //Création du total de produit
-    var total_product_count = document.createTextNode(localStorage.length);
     var totalproduct = document.getElementById("totalQuantity")
-    totalproduct.appendChild(total_product_count)
+    totalproduct.appendChild(Total_product_count)
 
     //Création du prix total
     var total_product_price = document.createTextNode(Total_price);
@@ -253,6 +241,7 @@ function updateTotalPrice(){
     var product_Array = []
 
     var Total_price = 0;
+    var Total_count = 0;
 
     console.log(localStorage.length)
 
@@ -268,9 +257,8 @@ function updateTotalPrice(){
 
             // Si l'id est égal à l'id demandé
             if (value[key]._id === product_Array[i].id) {
-                console.log(value[key]);
-                console.log(product_Array[i].quantity)
                 Total_price = Total_price + (product_Array[i].quantity*value[key].price)
+                Total_count = parseInt(Total_count) + parseInt(product_Array[i].quantity);
             }
         }
     }
@@ -281,7 +269,8 @@ function updateTotalPrice(){
      totalproduct_price.innerHTML = Total_price
 
      var totalproduct = document.getElementById("totalQuantity")
-    totalproduct.innerHTML = localStorage.length
+    
+        totalproduct.innerHTML = Total_count;
 
     })
     .catch(function(err) {
@@ -361,7 +350,7 @@ function postForm() {
 
     var products = []
     for (i=0; i<product_Array.length; i++){
-        products.push(product_Array[i].id)
+        products.push(element.id)
     }
     console.log(products)
     alert(products)

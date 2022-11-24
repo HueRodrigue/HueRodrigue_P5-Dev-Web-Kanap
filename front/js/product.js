@@ -1,90 +1,24 @@
 /*
 *Récupération d'un produit particulié par le bias de l'url, puis création des éléments HTML permettant de l'afficher
-*@param { Object[] } value
-*@param { String[] } value[].colors
-*@param { String } value[]._id
-*@param { String } value[].name
-*@param { Number } value[].price
-*@param { String } value[].imgUrl
-*@param { String } value[].description
-*@param { String } value[].altTxt
 */
-fetch("http://localhost:3000/api/products")
+
+// Récupération de l'url
+var url = window.location.href
+
+// Récupération de l'id du produit dans l'url
+var product_id = url.match(/id=(.*$)/)[1];
+
+fetch("http://localhost:3000/api/products/" + product_id)
     .then(function(res) {
         if (res.ok) {
             return res.json();
         }
     })
     .then(function(value) {
-        // Récupération de l'url
-        var url = window.location.href
+        // Changement du titre de la page par le nom du produit
+        document.title = value.name
 
-        // Récupération de l'id du produit dans l'url
-        var product_id = url.match(/id=(.*$)/)[1];
-
-        // Recherche du produit ayant l'id demandé
-        let foundProduct = null;
-        for (let key in value) {
-
-            // Si l'id est égal à l'id demandé
-            if (value[key]._id === product_id) {
-                foundProduct = value[key];
-
-                // Changement du titre de la page par le nom du produit
-                document.title = foundProduct.name
-
-                // Localisation de l'élement stockant l'image du canapé
-                var target_img_Elmt = document.getElementsByClassName('item__img')[0];
-
-                // Création de la balise <img>
-                var Element_image = document.createElement("img");
-                // Ajout du chemin de l'image
-                Element_image.src = foundProduct.imageUrl;
-                // Ajout de son texte alternatif
-                Element_image.alt = foundProduct.altTxt;
-                // Placement de l'image dans le HTML
-                target_img_Elmt.appendChild(Element_image);
-
-                // Localisation de l'élement stockant le titre du canapé
-                var Element_title = document.getElementById("title");
-
-                // Création du titre du canapé
-                var title = document.createTextNode(foundProduct.name)
-                Element_title.appendChild(title)
-
-                // Localisation de l'élement stockant le prix du canapé
-                var Element_price = document.getElementById("price");
-
-                // Création du prix du canapé
-                var price = document.createTextNode(foundProduct.price)
-                Element_price.appendChild(price)
-
-                // Localisation de l'élement stockant la description du canapé
-                var Element_description = document.getElementById("description");
-                // Création de la description du canapé
-                var description = document.createTextNode(foundProduct.description)
-                Element_description.appendChild(description)
-
-                // Localisation de l'élement stockant les couleurs du canapé
-                var sel = document.getElementById("colors");
-
-                // Compteur de couleur
-                var colors_count = foundProduct.colors.length
-
-                // Pour chaque couleur
-                for (i = 0; i < colors_count; i++){
-                    // Création d'un balise <option>
-                    const opt = document.createElement("option");
-                    // Remplisage de la liste des couleurs
-                    opt.value = foundProduct.colors[i];
-                    opt.text = foundProduct.colors[i];
-                    sel.add(opt, null);
-                }
-                
-            }
-            
-            
-        }
+        display(value)
         
     })
     .catch(function(err) {
@@ -107,14 +41,54 @@ function checkQuantity(){
     }
 }
 
-function addToCart(){
-    
-    console.log("test")
-    // Récupération de l'url
-    var url = window.location.href
+async function display(value){
+    // Localisation de l'élement stockant l'image du canapé
+    var target_image_Element = document.getElementsByClassName('item__img')[0];
 
-    // Récupération de l'id du produit dans l'url
-    var product_id = url.match(/id=(.*$)/)[1];  
+    // Création de la balise <img>
+    var image_Element = document.createElement("img");
+    // Ajout du chemin de l'image
+    image_Element.src = value.imageUrl;
+    // Ajout de son texte alternatif
+    image_Element.alt = value.altTxt;
+    // Placement de l'image dans le HTML
+    target_image_Element.appendChild(image_Element);
+
+    // Localisation de l'élement stockant le titre du canapé
+    var title_Element = document.getElementById("title");
+
+    // Création du titre du canapé
+    var title = document.createTextNode(value.name)
+    title_Element.appendChild(title)
+
+    // Localisation de l'élement stockant le prix du canapé
+    var price_Element = document.getElementById("price");
+
+    // Création du prix du canapé
+    var price = document.createTextNode(value.price)
+    price_Element.appendChild(price)
+
+    // Localisation de l'élement stockant la description du canapé
+    var description_Element = document.getElementById("description");
+    // Création de la description du canapé
+    var description = document.createTextNode(value.description)
+    description_Element.appendChild(description)
+
+    // Localisation de l'élement stockant les couleurs du canapé
+    var colors_selection_Element = document.getElementById("colors");
+
+    // Pour chaque couleur
+    for (i = 0; i < value.colors.length; i++){
+        // Création d'un balise <option>
+        var color_option = document.createElement("option");
+        // Remplisage de la liste des couleurs
+        color_option.value = value.colors[i];
+        color_option.text = value.colors[i];
+        colors_selection_Element.add(color_option, null);
+    }
+}
+
+function addToCart(){
 
     // Récupération de la quantité
     var quantity = document.getElementsByName("itemQuantity")[0].value
@@ -131,6 +105,7 @@ function addToCart(){
     else{
         // Préparation du stackage des produits commandés
         var storageId = product_id +"//" + color_value
+        
 
         // On vérifie si le produit est déja dans le localStorage
         if (localStorage.getItem(storageId) !== null) {
@@ -156,6 +131,7 @@ function addToCart(){
             };
             var canape_json = JSON.stringify(canape);
             localStorage.setItem(storageId,canape_json);
+            alert("Le produit a été ajouté au panier")
         }
         
     }
