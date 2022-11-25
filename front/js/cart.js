@@ -212,6 +212,8 @@ console.log(inputsElement)
     }, false);
  }
 
+ document.getElementById("order").addEventListener("click", postForm); 
+
 
 
 })
@@ -287,6 +289,8 @@ function formValidity(id,content){
     switch(id){
         case "lastName":
             if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,20}$/.test(content)) {
+                let lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+                lastNameErrorMsg.innerText = "Nom valide";
                 return true;
               } else {
                 let lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
@@ -295,6 +299,8 @@ function formValidity(id,content){
         break;
         case "firstName":
             if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,20}$/.test(content)) {
+                let firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
+                firstNameErrorMsg.innerText = "Prénom valide";
                 return true;
               } else {
                 let firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
@@ -302,7 +308,9 @@ function formValidity(id,content){
               }
             break;
         case "email":
-            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(content)) {
+            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(content)) {
+                let emailErrorMsg = document.getElementById('emailErrorMsg');
+                emailErrorMsg.innerText = "Email valide";
                 return true;
               } else {
                 let emailErrorMsg = document.getElementById('emailErrorMsg');
@@ -312,7 +320,10 @@ function formValidity(id,content){
         
             case "city" :
                 if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,10}$/.test(content)) {
+                    let cityErrorMsg = document.getElementById('cityErrorMsg');
+                    cityErrorMsg.innerText = "Ville valide";
                     return true;
+                    
                   } else {
                     let cityErrorMsg = document.getElementById('cityErrorMsg');
                     cityErrorMsg.innerText = "Merci de vérifier le nom de la ville, 3 caractères minimum, avec des lettres uniquement";
@@ -324,65 +335,68 @@ function formValidity(id,content){
 }
 
 function postForm() {
-    const order = document.getElementById('order');
-  order.addEventListener('click', (event) => {
-  event.preventDefault();
-    const contact = {
-        firstName : document.getElementById('firstName').value,
-        lastName : document.getElementById('lastName').value,
-        address : document.getElementById('address').value,
-        city : document.getElementById('city').value,
-        email : document.getElementById('email').value
-    }
-
-    console.log("getting data from local storage");
-    var product_Array = []
-
-
-    console.log(localStorage.length)
-
-    for (var i = 0, len = localStorage.length; i < len; i++) {
-        var newArr = JSON.parse(window.localStorage.getItem(localStorage.key(i)));
-        console.log(newArr)
-        product_Array.push(newArr)
-
-    }
-
-    var products = []
-    for (i=0; i<product_Array.length; i++){
-        products.push(element.id)
-    }
-    console.log(products)
-    alert(products)
-    
-    const sendFormData = {
-        contact,
-        products,
-      }
-
-      alert(sendFormData)
-    
-      // j'envoie le formulaire + localStorage (sendFormData) 
-      // ... que j'envoie au serveur
-    
-      const options = {
-        method: 'POST',
-        body: JSON.stringify(sendFormData),
-        headers: { 
-          'Content-Type': 'application/json',
+    if(document.getElementById('firstName').value == "" || document.getElementById('lastName').value == "" || document.getElementById('address').value =="" || document.getElementById('city').value == "" || document.getElementById('email').value == ""){
+        alert("Chanps vide dans le formulaire")
+    } else {
+        const contact = {
+            firstName : document.getElementById('firstName').value,
+            lastName : document.getElementById('lastName').value,
+            address : document.getElementById('address').value,
+            city : document.getElementById('city').value,
+            email : document.getElementById('email').value
         }
-      };
     
-      fetch("http://localhost:3000/api/products/order", options)
-        .then(response => response.json())
-        .then(data => {
-          localStorage.setItem('orderId', data.orderId);
-            
-              document.location.href = 'confirmation.html?id='+ data.orderId;
-            
-        });
-    });
+    
+        console.log("getting data from local storage");
+        var product_Array = []
+    
+    
+        console.log(localStorage.length)
+    
+        for (var i = 0, len = localStorage.length; i < len; i++) {
+            var newArr = JSON.parse(window.localStorage.getItem(localStorage.key(i)));
+            console.log(newArr)
+            product_Array.push(newArr)
+    
+        }
+    
+        var products = []
+        for (i=0; i<product_Array.length; i++){
+            products.push(product_Array[i].id)
+        }
+        console.log(products)
+        alert(products)
+        
+        const sendFormData = {
+            contact,
+            products,
+          }
+    
+          alert(sendFormData)
+        
+          // j'envoie le formulaire + localStorage (sendFormData) 
+          // ... que j'envoie au serveur
+        
+          const options = {
+            method: 'POST',
+            body: JSON.stringify(sendFormData),
+            headers: { 
+              'Content-Type': 'application/json',
+            }
+          };
+        
+          fetch("http://localhost:3000/api/products/order", options)
+            .then(response => response.json())
+            .then(data => {
+              localStorage.setItem('orderId', data.orderId);
+                
+                  document.location.href = 'confirmation.html?id='+ data.orderId;
+                
+            });
+    }
+    
+
 } 
-postForm()
+
 
 
