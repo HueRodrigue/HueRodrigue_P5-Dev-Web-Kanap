@@ -202,7 +202,7 @@ fetch("http://localhost:3000/api/products")
     }, false);
 }
 
-
+//Mise a l'ecoute du formulaire
 var inputsElement = document.querySelectorAll('.cart__order__form__question input');
 console.log(inputsElement)
  for(i=0; i<inputsElement.length; i++){
@@ -212,6 +212,7 @@ console.log(inputsElement)
     }, false);
  }
 
+ //Mise a l'coute du bouton de commande
  document.getElementById("order").addEventListener("click", postForm); 
 
 
@@ -223,10 +224,10 @@ console.log(inputsElement)
 
 
 
-function getParentNode(element, level = 1) { // 1 - default value (if no 'level' parameter is passed to the function)
+function getParentNode(element, level = 1) { 
     while (level-- > 0) {
       element = element.parentNode;
-      if (!element) return null; // to avoid a possible "TypeError: Cannot read property 'parentNode' of null" if the requested level is higher than document
+      if (!element) return null; // Retourne le noeud demandé
     }
     return element;
 }
@@ -245,7 +246,6 @@ function updateTotalPrice(){
     var Total_price = 0;
     var Total_count = 0;
 
-    console.log(localStorage.length)
 
     for (var i = 0, len = localStorage.length; i < len; i++) {
         var newArr = JSON.parse(window.localStorage.getItem(localStorage.key(i)));
@@ -265,7 +265,6 @@ function updateTotalPrice(){
         }
     }
 
-    console.log(Total_price)
      //Modification du prix total
      var totalproduct_price = document.getElementById("totalPrice")
      totalproduct_price.innerHTML = Total_price
@@ -364,15 +363,14 @@ function postForm() {
         for (i=0; i<product_Array.length; i++){
             products.push(product_Array[i].id)
         }
-        console.log(products)
-        alert(products)
+    
         
         const sendFormData = {
             contact,
             products,
           }
     
-          alert(sendFormData)
+          
         
           // j'envoie le formulaire + localStorage (sendFormData) 
           // ... que j'envoie au serveur
