@@ -290,30 +290,33 @@ function formValidity(id,content){
             if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,20}$/.test(content)) {
                 let lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
                 lastNameErrorMsg.innerText = "Nom valide";
-                return true;
+                return 1;
               } else {
                 let lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
                 lastNameErrorMsg.innerText = "Merci de vérifier le nom, 3 caractères minimum, avec des lettres uniquement";
+                return 0;
               }
         break;
         case "firstName":
             if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,20}$/.test(content)) {
                 let firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
                 firstNameErrorMsg.innerText = "Prénom valide";
-                return true;
+                return 1;
               } else {
                 let firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
                 firstNameErrorMsg.innerText = "Merci de vérifier le prénom, 3 caractères minimum";
+                return 0;
               }
             break;
         case "email":
             if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(content)) {
                 let emailErrorMsg = document.getElementById('emailErrorMsg');
                 emailErrorMsg.innerText = "Email valide";
-                return true;
+                return 1;
               } else {
                 let emailErrorMsg = document.getElementById('emailErrorMsg');
                 emailErrorMsg.innerText = "Erreur ! Email non valide";
+                return 0;
               }   
             break;
         
@@ -321,11 +324,12 @@ function formValidity(id,content){
                 if (/^[^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{3,10}$/.test(content)) {
                     let cityErrorMsg = document.getElementById('cityErrorMsg');
                     cityErrorMsg.innerText = "Ville valide";
-                    return true;
+                    return 1;
                     
                   } else {
                     let cityErrorMsg = document.getElementById('cityErrorMsg');
                     cityErrorMsg.innerText = "Merci de vérifier le nom de la ville, 3 caractères minimum, avec des lettres uniquement";
+                    return 0;
                   }
                 break;
             
@@ -336,7 +340,14 @@ function formValidity(id,content){
 function postForm() {
     if(document.getElementById('firstName').value == "" || document.getElementById('lastName').value == "" || document.getElementById('address').value =="" || document.getElementById('city').value == "" || document.getElementById('email').value == ""){
         alert("Chanps vide dans le formulaire")
-    } else {
+    } 
+    else {
+        for(i=0; i<inputsElement.length; i++){
+            if(formValidity(inputsElement[i].id, inputsElement[i].value) !== 1) {
+                alert("Au moins un champs du formulaire n'est pas correctement remplis")
+                break;
+            }
+        }
         const contact = {
             firstName : document.getElementById('firstName').value,
             lastName : document.getElementById('lastName').value,
