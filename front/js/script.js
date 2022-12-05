@@ -13,7 +13,7 @@ fetch("http://localhost:3000/api/products")
     var target_Element = document.getElementById('items');
     var product_count = value.length
     // Pour chaque produit
-    for (i = 0; i <product_count-1; i++){
+    for (i = 0; i <product_count; i++){
 
         // Création de la balise <img>
         var image_Element = document.createElement("img");

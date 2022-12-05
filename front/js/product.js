@@ -29,6 +29,8 @@ fetch("http://localhost:3000/api/products/" + product_id)
 document.getElementsByName("itemQuantity")[0].addEventListener('change', checkQuantity);
 document.getElementById("addToCart").addEventListener('click', addToCart);
 // Récupération de la quantité
+
+// Fonction permettant de controler la quantité
 function checkQuantity(){
     var Max_Quantity = document.getElementsByName("itemQuantity")[0].max;
 
@@ -36,11 +38,15 @@ function checkQuantity(){
     if(parseInt(this.value) <= parseInt(Max_Quantity)){
         console.log("Quantité comprise entre 1 et 100")
     }
-    else{
+    else if(parseInt(this.value) === 0){
+        alert(this.value + " est inférieur à la quantité minimal")
+    }
+    else {
         alert(this.value + " est supérieur à la quantité max :" + Max_Quantity)
     }
 }
 
+// Fonction permettant d'afficher le produit
 async function display(value){
     // Localisation de l'élement stockant l'image du canapé
     var target_image_Element = document.getElementsByClassName('item__img')[0];
@@ -87,11 +93,15 @@ async function display(value){
         colors_selection_Element.add(color_option, null);
     }
 }
-
+// Fonction d'ajout de l'article au panier
 function addToCart(){
+    
 
     // Récupération de la quantité
     var quantity = document.getElementsByName("itemQuantity")[0].value
+    if(parseInt(quantity) === 0){
+        alert("La quantité doit être comprise entre 1 et 100")
+    }
 
     // Récupération de la couleur
     var color_element = document.getElementById("colors");

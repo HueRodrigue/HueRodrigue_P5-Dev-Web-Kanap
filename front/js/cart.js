@@ -192,6 +192,7 @@ fetch("http://localhost:3000/api/products")
             deleteProduct(storageId)
             const el1 = document.querySelector('[data-id="'+ getNode.dataset.id+'"]');
             while (el1.firstChild) {
+                el1.parentElement.remove();
                 el1.removeChild(el1.firstChild);
             }
             updateTotalPrice()
@@ -212,7 +213,7 @@ console.log(inputsElement)
     }, false);
  }
 
- //Mise a l'coute du bouton de commande
+ //Mise a l'ecoute du bouton de commande
  document.getElementById("order").addEventListener("click", postForm); 
 
 
@@ -223,7 +224,7 @@ console.log(inputsElement)
 });
 
 
-
+// Fonction permettant la récupération de noeud supérieur a l'élément cible
 function getParentNode(element, level = 1) { 
     while (level-- > 0) {
       element = element.parentNode;
@@ -232,6 +233,7 @@ function getParentNode(element, level = 1) {
     return element;
 }
 
+// Fonction permettant la mise a jour du prix total et du nombre d'article total
 function updateTotalPrice(){
     fetch("http://localhost:3000/api/products")
     .then(function(res) {
@@ -279,11 +281,13 @@ function updateTotalPrice(){
     });
 }
 
+// Fonction de suppression d'un produit dans le Local Storage
 function deleteProduct(product_id){
     localStorage.removeItem(product_id);
     console.log("produit avec l'id " + product_id + " supprimé")
 }
 
+// Fonction vérifiant la validité des champs du formulaire
 function formValidity(id,content){
     switch(id){
         case "lastName":
@@ -337,17 +341,15 @@ function formValidity(id,content){
     }
 }
 
+// Fonction permettant d'envoyer les informations utilisateur et le panier au serveur
 function postForm() {
+    var inputsElement = document.querySelectorAll('.cart__order__form__question input');
     if(document.getElementById('firstName').value == "" || document.getElementById('lastName').value == "" || document.getElementById('address').value =="" || document.getElementById('city').value == "" || document.getElementById('email').value == ""){
         alert("Chanps vide dans le formulaire")
     } 
+    
     else {
-        for(i=0; i<inputsElement.length; i++){
-            if(formValidity(inputsElement[i].id, inputsElement[i].value) !== 1) {
-                alert("Au moins un champs du formulaire n'est pas correctement remplis")
-                break;
-            }
-        }
+        
         const contact = {
             firstName : document.getElementById('firstName').value,
             lastName : document.getElementById('lastName').value,
