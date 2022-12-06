@@ -192,9 +192,9 @@ fetch("http://localhost:3000/api/products")
             deleteProduct(storageId)
             const el1 = document.querySelector('[data-id="'+ getNode.dataset.id+'"]');
             while (el1.firstChild) {
-                el1.parentElement.remove();
                 el1.removeChild(el1.firstChild);
             }
+            el1.remove()
             updateTotalPrice()
         } else {
             alert("Aucun produit supprimé");
